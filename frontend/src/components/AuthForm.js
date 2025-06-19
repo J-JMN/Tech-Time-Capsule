@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
 function AuthForm({ isLogin, onSubmit, error }) {
+    const [showPassword, setShowPassword] = useState(false); 
+
     const formik = useFormik({
         initialValues: {
             username: '',
@@ -31,13 +33,31 @@ function AuthForm({ isLogin, onSubmit, error }) {
                 <div className="error">{formik.errors.username}</div>
             ) : null}
 
-            <input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Password"
-                {...formik.getFieldProps('password')}
-            />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'} 
+                    placeholder="Password"
+                    {...formik.getFieldProps('password')}
+                    style={{ paddingRight: '60px' }} 
+                />
+                <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                        position: 'absolute',
+                        right: '5px',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#61dafb',
+                        cursor: 'pointer',
+                        padding: '5px'
+                    }}
+                >
+                    {showPassword ? 'Hide' : 'Show'}
+                </button>
+            </div>
             {formik.touched.password && formik.errors.password ? (
                 <div className="error">{formik.errors.password}</div>
             ) : null}

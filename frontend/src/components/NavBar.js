@@ -20,7 +20,7 @@ function NavBar() {
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', background: '#282c34' }}>
             <div>
                 <NavLink to="/" style={linkStyle}>
-                    📅 Tech Time Capsule
+                     Tech Time Capsule
                 </NavLink>
             </div>
             <nav>
