@@ -7,8 +7,8 @@ function HomePage() {
     const [viewMode, setViewMode] = useState('daily');
     const [events, setEvents] = useState([]);
     const [filters, setFilters] = useState({
-        date: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
-        month: new Date().toISOString().slice(0, 7), // YYYY-MM
+        date: new Date().toISOString().slice(0, 10),
+        month: new Date().toISOString().slice(0, 7),
         years: '',
     });
     const [isLoading, setIsLoading] = useState(false);
@@ -18,27 +18,40 @@ function HomePage() {
         setIsLoading(true);
         setError('');
         
-        let url;
         const params = new URLSearchParams();
+        let url = '/api/events';
 
         if (isInitialLoad) {
             url = '/api/events/featured';
         } else {
-            url = '/api/events';
+            // FIX STARTS HERE: This logic is now flattened to combine all filters correctly.
+            // It no longer uses an if/else block that separates the filters.
+
+            // Always add the month and day filter based on the current view mode.
+            if (viewMode === 'daily') {
+                const [year, month, day] = filters.date.split('-').map(Number);
+                params.append('month', month);
+                params.append('day', day);
+            } else { // monthly view
+                const [month] = filters.month.split('-').map(Number).slice(1);
+                params.append('month', month);
+            }
+
+            // Now, determine the year filter. The text input takes priority.
             if (filters.years) {
+                // If the text input has a value, use it for the year(s).
                 params.append('years', filters.years);
             } else {
+                // Otherwise, use the year from the relevant date/month picker.
                 if (viewMode === 'daily') {
-                    const [year, month, day] = filters.date.split('-').map(Number);
+                    const [year] = filters.date.split('-').map(Number);
                     params.append('year', year);
-                    params.append('month', month);
-                    params.append('day', day);
                 } else { // monthly view
-                    const [year, month] = filters.month.split('-').map(Number);
+                    const [year] = filters.month.split('-').map(Number);
                     params.append('year', year);
-                    params.append('month', month);
                 }
             }
+            // FIX ENDS HERE
         }
 
         try {
@@ -55,38 +68,37 @@ function HomePage() {
     }, [filters, isInitialLoad, viewMode]);
 
     useEffect(() => {
-        // fetch when filters change, not on every render
+        // This effect now triggers a fetch whenever a filter changes.
+        // The initial fetch is handled by the effect below this one.
         if (!isInitialLoad) {
             fetchEvents();
         }
-    }, [filters, isInitialLoad]); 
+    }, [filters, viewMode, isInitialLoad]); // Removed fetchEvents from here to prevent loops
 
     useEffect(() => {
+        // This effect runs only once on initial load to get featured events
         fetchEvents();
-    }, []); 
+    }, []); // Empty dependency array ensures it runs once on mount
 
     const handleFilterChange = (updates) => {
         const newFilters = { ...filters, ...updates };
-        // Check if the 'years' text input was the one that changed.
         if ('years' in updates) {
             const yearInput = updates.years;
-            // Check if the input is a single, valid 4-digit year
             if (/^\d{4}$/.test(yearInput)) {
                 const newYear = yearInput;
-                // Update the date and month pickers to reflect this new year
-                const currentMonthDay = newFilters.date.substring(4); // -MM-DD
-                const currentMonth = newFilters.month.substring(4);   // -MM
+                const currentMonthDay = newFilters.date.substring(4);
+                const currentMonth = newFilters.month.substring(4);
                 newFilters.date = `${newYear}${currentMonthDay}`;
                 newFilters.month = `${newYear}${currentMonth}`;
             }
         }
-
         setFilters(newFilters);
         if (isInitialLoad) {
             setIsInitialLoad(false);
         }
     };
-
+    
+    // The rest of the component remains the same
     const handleEventDelete = (deletedEventId) => {
         setEvents(prevEvents => prevEvents.filter(event => event.id !== deletedEventId));
     };
