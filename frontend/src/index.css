@@ -36,15 +36,16 @@ button:disabled {
     color: #999;
 }
 
-input, textarea {
+input, textarea, select {
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #2b81a8;
+    border: 1px solid #555;
     background-color: #333;
     color: #f0f0f0;
     width: 100%;
-    box-sizing: border-box; 
+    box-sizing: border-box;
     margin-bottom: 1rem;
+    font-size: 1rem;
 }
 
 .error {

@@ -1,15 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import EventCard from '../components/EventCard';
 
+function useQuery() {
+    return new URLSearchParams(useLocation().search);
+}
+
 function HomePage() {
-    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const query = useQuery();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const [isInitialLoad, setIsInitialLoad] = useState(!query.get('category_id') && !query.get('sort'));
     const [viewMode, setViewMode] = useState('daily');
     const [events, setEvents] = useState([]);
     const [filters, setFilters] = useState({
         date: new Date().toISOString().slice(0, 10),
         month: new Date().toISOString().slice(0, 7),
         years: '',
+        sort: query.get('sort') || 'historical',
+        category_id: query.get('category_id') || ''
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -18,87 +29,75 @@ function HomePage() {
         setIsLoading(true);
         setError('');
         
-        const params = new URLSearchParams();
         let url = '/api/events';
+        const params = new URLSearchParams();
 
         if (isInitialLoad) {
             url = '/api/events/featured';
         } else {
-            // FIX STARTS HERE: This logic is now flattened to combine all filters correctly.
-            // It no longer uses an if/else block that separates the filters.
-
-            // Always add the month and day filter based on the current view mode.
-            if (viewMode === 'daily') {
-                const [year, month, day] = filters.date.split('-').map(Number);
-                params.append('month', month);
-                params.append('day', day);
-            } else { // monthly view
-                const [month] = filters.month.split('-').map(Number).slice(1);
-                params.append('month', month);
-            }
-
-            // Now, determine the year filter. The text input takes priority.
-            if (filters.years) {
-                // If the text input has a value, use it for the year(s).
-                params.append('years', filters.years);
+            if (filters.category_id) {
+                params.append('category_id', filters.category_id);
             } else {
-                // Otherwise, use the year from the relevant date/month picker.
-                if (viewMode === 'daily') {
-                    const [year] = filters.date.split('-').map(Number);
-                    params.append('year', year);
-                } else { // monthly view
-                    const [year] = filters.month.split('-').map(Number);
-                    params.append('year', year);
+                if (filters.years) {
+                    params.append('years', filters.years);
+                } else {
+                    if (viewMode === 'daily') {
+                        const [year, month, day] = filters.date.split('-').map(Number);
+                        params.append('year', year); params.append('month', month); params.append('day', day);
+                    } else {
+                        const [year, month] = filters.month.split('-').map(Number);
+                        params.append('year', year); params.append('month', month);
+                    }
                 }
             }
-            // FIX ENDS HERE
+            if (filters.sort === 'newest') {
+                params.append('sort', 'newest');
+            }
         }
 
         try {
             const response = await axios.get(`${url}?${params.toString()}`);
             setEvents(response.data);
-            if (response.data.length === 0) {
-                setError('No events found for this selection.');
-            }
+            if (response.data.length === 0) setError('No events found for this selection.');
         } catch (err) {
-            setError(err.response?.data?.error || 'An error occurred while fetching events.');
+            setError(err.response?.data?.error || 'An error occurred.');
         } finally {
             setIsLoading(false);
         }
     }, [filters, isInitialLoad, viewMode]);
 
     useEffect(() => {
-        // This effect now triggers a fetch whenever a filter changes.
-        // The initial fetch is handled by the effect below this one.
-        if (!isInitialLoad) {
-            fetchEvents();
-        }
-    }, [filters, viewMode, isInitialLoad]); // Removed fetchEvents from here to prevent loops
+        fetchEvents();
+    }, [fetchEvents]);
 
     useEffect(() => {
-        // This effect runs only once on initial load to get featured events
-        fetchEvents();
-    }, []); // Empty dependency array ensures it runs once on mount
+        const categoryId = query.get('category_id');
+        if (categoryId) {
+            setFilters(f => ({ ...f, category_id: categoryId, years: '' }));
+            if (isInitialLoad) setIsInitialLoad(false);
+        }
+    }, [location.search]);
 
     const handleFilterChange = (updates) => {
-        const newFilters = { ...filters, ...updates };
+        const newFilters = { ...filters, ...updates, category_id: '' };
         if ('years' in updates) {
             const yearInput = updates.years;
             if (/^\d{4}$/.test(yearInput)) {
                 const newYear = yearInput;
-                const currentMonthDay = newFilters.date.substring(4);
-                const currentMonth = newFilters.month.substring(4);
-                newFilters.date = `${newYear}${currentMonthDay}`;
-                newFilters.month = `${newYear}${currentMonth}`;
+                newFilters.date = `${newYear}${filters.date.substring(4)}`;
+                newFilters.month = `${newYear}${filters.month.substring(4)}`;
             }
         }
         setFilters(newFilters);
-        if (isInitialLoad) {
-            setIsInitialLoad(false);
-        }
+        if (isInitialLoad) setIsInitialLoad(false);
+        navigate('/'); 
     };
-    
-    // The rest of the component remains the same
+
+    const handleSortChange = (sortValue) => {
+        setFilters({ ...filters, sort: sortValue });
+        if (isInitialLoad) setIsInitialLoad(false);
+    };
+
     const handleEventDelete = (deletedEventId) => {
         setEvents(prevEvents => prevEvents.filter(event => event.id !== deletedEventId));
     };
@@ -106,28 +105,31 @@ function HomePage() {
     return (
         <div>
             <h1>Explore Tech History</h1>
-            <p>{isInitialLoad ? "Showing a random selection of featured events. Use the filters to find specific moments." : `Showing ${viewMode} results.`}</p>
+            <p>{isInitialLoad ? "Showing a random selection of featured events. Use the filters to find specific moments." : `Showing filtered results.`}</p>
             
             <div style={{ marginBottom: '2rem', background: '#282c34', padding: '1rem', borderRadius: '8px' }}>
-                <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center', borderBottom: '1px solid #444', paddingBottom: '1rem' }}>
-                    <strong>View Mode:</strong>
-                    <button onClick={() => { setViewMode('daily'); if(isInitialLoad) setIsInitialLoad(false); }} disabled={viewMode === 'daily'}>Daily</button>
-                    <button onClick={() => { setViewMode('monthly'); if(isInitialLoad) setIsInitialLoad(false); }} disabled={viewMode === 'monthly'}>Monthly</button>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderBottom: '1px solid #444', paddingBottom: '1rem', flexWrap: 'wrap' }}>
+                    <div>
+                        <strong>View Mode:</strong>
+                        <button onClick={() => setViewMode('daily')} disabled={viewMode === 'daily'}>Daily</button>
+                        <button onClick={() => setViewMode('monthly')} disabled={viewMode === 'monthly'}>Monthly</button>
+                    </div>
+                    <div style={{marginLeft: 'auto'}}>
+                        <strong>Sort By:</strong>
+                        <select value={filters.sort} onChange={(e) => handleSortChange(e.target.value)}>
+                            <option value="historical">Historical Date</option>
+                            <option value="newest">Recently Added</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '1rem' }}>
                     {viewMode === 'daily' ? (
                         <input type="date" value={filters.date} onChange={(e) => handleFilterChange({ date: e.target.value })} />
                     ) : (
                         <input type="month" value={filters.month} onChange={(e) => handleFilterChange({ month: e.target.value })} />
                     )}
-                    <input 
-                        type="text" 
-                        placeholder="Or filter by a single year (e.g., 2007)" 
-                        value={filters.years}
-                        onChange={(e) => handleFilterChange({ years: e.target.value })}
-                        style={{flex: 1, minWidth: '250px'}}
-                    />
+                    <input type="text" placeholder="Or filter by single/multiple years" value={filters.years} onChange={(e) => handleFilterChange({ years: e.target.value })} style={{flex: 1, minWidth: '250px'}} />
                 </div>
             </div>
 

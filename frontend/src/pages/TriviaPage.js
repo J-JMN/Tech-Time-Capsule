@@ -4,7 +4,6 @@ import axios from 'axios';
 function TriviaPage() {
     const initialScore = Number(localStorage.getItem('triviaScore')) || 0;
     const [score, setScore] = useState(initialScore);
-
     const [question, setQuestion] = useState(null);
     const [guess, setGuess] = useState('');
     const [feedback, setFeedback] = useState('');
@@ -33,22 +32,18 @@ function TriviaPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (answered) return;
-
         const userGuess = parseInt(guess);
         if (isNaN(userGuess)) {
             setFeedback('Please enter a valid year.');
             return;
         }
-
         setAnswered(true);
-
         if (userGuess === question.correct_year) {
             setFeedback(`✅ Correct! The year was ${question.correct_year}.`);
-            setScore(prev => prev + 1); 
+            setScore(prev => prev + 1);
         } else {
             setFeedback(`❌ Not quite. The correct year was ${question.correct_year}.`);
         }
-
         setTimeout(() => {
             fetchQuestion();
         }, 3000);
@@ -67,14 +62,7 @@ function TriviaPage() {
                         "{question.description}"
                     </blockquote>
                     <form onSubmit={handleSubmit}>
-                        <input
-                            type="number"
-                            placeholder="Enter Year (e.g., 1995)"
-                            value={guess}
-                            onChange={e => setGuess(e.target.value)}
-                            style={{ textAlign: 'center', marginBottom: '1rem' }}
-                            disabled={answered}
-                        />
+                        <input type="number" placeholder="Enter Year (e.g., 1995)" value={guess} onChange={e => setGuess(e.target.value)} style={{ textAlign: 'center', marginBottom: '1rem' }} disabled={answered} />
                         <button type="submit" disabled={answered}>
                             {answered ? 'Waiting for next question...' : 'Submit Guess'}
                         </button>

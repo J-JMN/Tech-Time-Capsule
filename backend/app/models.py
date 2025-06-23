@@ -33,13 +33,14 @@ class Event(db.Model, SerializerMixin):
     month = db.Column(db.Integer, nullable=False)
     day = db.Column(db.Integer, nullable=False)
     image_url = db.Column(db.String(500))
-    source_link = db.Column(db.String(500))
+    source_link = db.Column(db.String(500), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     user = db.relationship('User', back_populates='events')
     event_categories = db.relationship('EventCategory', back_populates='event', cascade='all, delete-orphan')
 
-    serialize_rules = ('-user.events', '-user.categories', '-event_categories.event',)
+    serialize_rules = ('-user.events', '-user.categories', '-event_categories.event', 'event_categories.category', 'user.username')
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = 'categories'
@@ -51,7 +52,7 @@ class Category(db.Model, SerializerMixin):
     user = db.relationship('User', back_populates='categories')
     event_categories = db.relationship('EventCategory', back_populates='category', cascade='all, delete-orphan')
     
-    serialize_rules = ('-user.categories', '-user.events', '-event_categories.category',)
+    serialize_rules = ('-user.categories', '-user.events', '-event_categories.category', 'user.username')
 
 class EventCategory(db.Model, SerializerMixin):
     __tablename__ = 'event_categories'
@@ -63,4 +64,4 @@ class EventCategory(db.Model, SerializerMixin):
     event = db.relationship('Event', back_populates='event_categories')
     category = db.relationship('Category', back_populates='event_categories')
 
-    serialize_rules = ('-event.event_categories', '-category.event_categories',)
+    serialize_rules = ('-event.event_categories', '-category.event_categories', 'category.name')

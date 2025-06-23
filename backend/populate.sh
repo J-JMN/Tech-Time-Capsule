@@ -1,5 +1,3 @@
-#!/bin/bash
-
 echo "Starting massive data population from 2000 to 2024..."
 echo "This will take a long time. Please be patient."
 

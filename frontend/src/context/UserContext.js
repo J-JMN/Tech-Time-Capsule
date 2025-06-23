@@ -10,22 +10,17 @@ export const UserProvider = ({ children }) => {
         setLoading(true);
         fetch('/api/check_session')
             .then(res => {
-                // FIX: Check for a 204 No Content status.
-                // If the user is not logged in, the response has no body.
-                // Trying to call .json() on an empty body causes a crash.
                 if (res.status === 204) {
                     setUser(null);
-                    return null; // Return null to stop the promise chain
+                    return null; 
                 }
                 if (res.ok) {
-                    return res.json(); // Only parse JSON if the response is OK and has content
+                    return res.json();
                 }
-                // Handle other error statuses if needed
                 setUser(null);
                 return null;
             })
             .then(data => {
-                // This 'then' block will only run if data is not null
                 if (data) {
                     setUser(data);
                 }
@@ -43,7 +38,7 @@ export const UserProvider = ({ children }) => {
 
     return (
         <UserContext.Provider value={{ user, setUser, loading, checkSession }}>
-            {!loading && children}
+            {children}
         </UserContext.Provider>
     );
 };

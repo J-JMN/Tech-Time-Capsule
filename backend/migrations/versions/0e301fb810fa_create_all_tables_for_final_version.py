@@ -1,8 +1,8 @@
-"""Create initial tables
+"""Create all tables for final version
 
-Revision ID: 8010ee525439
+Revision ID: 0e301fb810fa
 Revises: 
-Create Date: 2025-06-17 13:30:48.940632
+Create Date: 2025-06-23 11:23:57.357074
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '8010ee525439'
+revision = '0e301fb810fa'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -42,8 +42,9 @@ def upgrade():
     sa.Column('month', sa.Integer(), nullable=False),
     sa.Column('day', sa.Integer(), nullable=False),
     sa.Column('image_url', sa.String(length=500), nullable=True),
-    sa.Column('source_link', sa.String(length=500), nullable=True),
+    sa.Column('source_link', sa.String(length=500), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_events_user_id_users')),
     sa.PrimaryKeyConstraint('id')
     )
