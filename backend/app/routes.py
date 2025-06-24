@@ -67,11 +67,7 @@ def handle_events():
         if not user_id: return make_response(jsonify({'error': 'Unauthorized'}), 401)
         data = request.get_json()
         try:
-            new_event = Event(
-                title=data['title'], description=data['description'],
-                year=data['year'], month=data['month'], day=data['day'],
-                user_id=user_id, source_link=data.get('source_link'),
-                image_url=data.get('image_url'))
+            new_event = Event(title=data['title'], description=data['description'],year=data['year'], month=data['month'], day=data['day'],user_id=user_id, source_link=data.get('source_link'),image_url=data.get('image_url'))
             db.session.add(new_event)
             db.session.commit()
             categories_data = data.get('categories', [])
@@ -90,23 +86,26 @@ def handle_events():
         category_id = args.get('category_id', type=int)
         if category_id:
             query = query.join(Event.event_categories).filter(EventCategory.category_id == category_id)
+        
+        years_str = args.get('years')
+        if years_str:
+            year_list = [int(y.strip()) for y in years_str.split(',') if y.strip().isdigit()]
+            if year_list: query = query.filter(Event.year.in_(year_list))
         else:
-            years_str = args.get('years')
-            if years_str:
-                year_list = [int(y.strip()) for y in years_str.split(',') if y.strip().isdigit()]
-                if year_list: query = query.filter(Event.year.in_(year_list))
-            else:
-                year = args.get('year', type=int)
-                if year: query = query.filter(Event.year == year)
-            month = args.get('month', type=int)
-            day = args.get('day', type=int)
-            if month: query = query.filter(Event.month == month)
-            if day: query = query.filter(Event.day == day)
+            year = args.get('year', type=int)
+            if year: query = query.filter(Event.year == year)
+        
+        month = args.get('month', type=int)
+        day = args.get('day', type=int)
+        if month: query = query.filter(Event.month == month)
+        if day: query = query.filter(Event.day == day)
+
         sort_by = args.get('sort')
         if sort_by == 'newest':
             query = query.order_by(Event.created_at.desc())
         else:
             query = query.order_by(Event.year.asc(), Event.month.asc(), Event.day.asc())
+        
         events = query.all()
         return make_response(jsonify([e.to_dict(rules=('-event_categories',)) for e in events]), 200)
 

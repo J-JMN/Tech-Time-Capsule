@@ -32,7 +32,7 @@ function SubmitEventPage() {
                     source_link: event.source_link, year: event.year,
                     month: event.month, day: event.day, image_url: event.image_url || '',
                     categories: event.event_categories.map(ec => ({
-                        category_id: ec.category.id,
+                        category_id: ec.category.id.toString(),
                         relationship_description: ec.relationship_description
                     }))
                 });
@@ -53,8 +53,8 @@ function SubmitEventPage() {
         image_url: Yup.string().url('Must be a valid URL'),
         categories: Yup.array().of(
             Yup.object().shape({
-                category_id: Yup.string().required('Category selection is required'),
-                relationship_description: Yup.string().required('Relationship description is required'),
+                category_id: Yup.string().required('Please select a category'),
+                relationship_description: Yup.string().required('Please provide a relationship description'),
             })
         )
     });
@@ -82,18 +82,32 @@ function SubmitEventPage() {
             <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} enableReinitialize>
                 {({ values, isSubmitting }) => (
                     <Form>
-                        <Field name="title" placeholder="Event Title" as={CustomInput} />
+                        <Field name="title" placeholder="Event Title" className="input-style" />
+                        <ErrorMessage name="title" component="div" className="error" />
+
                         <Field name="description" placeholder="Event Description" as="textarea" rows="5" className="input-style" />
                         <ErrorMessage name="description" component="div" className="error" />
-                        <Field name="source_link" placeholder="Source Link (e.g., https://en.wikipedia.org/...)" as={CustomInput} />
+
+                        <Field name="source_link" placeholder="Source Link (e.g., https://en.wikipedia.org/...)" className="input-style" />
+                        <ErrorMessage name="source_link" component="div" className="error" />
                         
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <Field name="year" type="number" placeholder="Year" as={CustomInput} />
-                            <Field name="month" type="number" placeholder="Month" as={CustomInput} />
-                            <Field name="day" type="number" placeholder="Day" as={CustomInput} />
+                            <div style={{flex: 1}}>
+                                <Field name="year" type="number" placeholder="Year" className="input-style" />
+                                <ErrorMessage name="year" component="div" className="error" />
+                            </div>
+                            <div style={{flex: 1}}>
+                                <Field name="month" type="number" placeholder="Month" className="input-style" />
+                                <ErrorMessage name="month" component="div" className="error" />
+                            </div>
+                             <div style={{flex: 1}}>
+                                <Field name="day" type="number" placeholder="Day" className="input-style" />
+                                <ErrorMessage name="day" component="div" className="error" />
+                            </div>
                         </div>
 
-                        <Field name="image_url" placeholder="Image URL (optional)" as={CustomInput} />
+                        <Field name="image_url" placeholder="Image URL (optional)" className="input-style" />
+                        <ErrorMessage name="image_url" component="div" className="error" />
 
                         <div style={{background: '#282c34', padding: '1rem', borderRadius: '5px', margin: '2rem 0'}}>
                             <FieldArray name="categories">
@@ -116,7 +130,7 @@ function SubmitEventPage() {
                                                 <button type="button" onClick={() => remove(index)} style={{background: '#ff6b6b'}}>X</button>
                                             </div>
                                         ))}
-                                        <button type="button" onClick={() => push({ category_id: '', relationship_description: '' })}>
+                                        <button type="button" onClick={() => push({ category_id: '', relationship_description: '' })} style={{background: '#4CAF50'}}>
                                             + Add Category Assignment
                                         </button>
                                     </div>
@@ -132,14 +146,5 @@ function SubmitEventPage() {
         </div>
     );
 }
-
-const CustomInput = ({ field, form, ...props }) => {
-    return (
-        <>
-            <input {...field} {...props} />
-            {form.touched[field.name] && form.errors[field.name] && <div className="error">{form.errors[field.name]}</div>}
-        </>
-    );
-};
 
 export default SubmitEventPage;
