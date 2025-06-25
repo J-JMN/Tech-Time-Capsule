@@ -2,7 +2,7 @@ services:
   - type: web
     name: tech-time-capsule-api
     runtime: python
-    region: frankfurt 
+    region: frankfurt
     plan: free
     rootDir: backend
     buildCommand: "pipenv install --system --deploy && flask db upgrade && flask seed_db"
@@ -19,8 +19,7 @@ services:
       - key: SECRET_KEY
         generateValue: true
 
-  # The React Frontend Service
-  - type: static
+  - type: static site 
     name: tech-time-capsule-client
     region: frankfurt
     plan: free
