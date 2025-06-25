@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { UserContext } from '../context/UserContext';
-import axios from 'axios';
+import apiClient from '../api/axios';
 
 function SubmitEventPage() {
     const { user } = useContext(UserContext);
@@ -20,12 +20,12 @@ function SubmitEventPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get('/api/categories').then(res => {
+        apiClient.get('/api/categories').then(res => {
             setAvailableCategories(res.data);
         });
 
         if (eventIdToEdit) {
-            axios.get(`/api/events/${eventIdToEdit}`).then(res => {
+            apiClient.get(`/api/events/${eventIdToEdit}`).then(res => {
                 const event = res.data;
                 setInitialValues({
                     title: event.title, description: event.description,
@@ -64,7 +64,7 @@ function SubmitEventPage() {
         const method = eventIdToEdit ? 'PATCH' : 'POST';
         const url = eventIdToEdit ? `/api/events/${eventIdToEdit}` : '/api/events';
 
-        axios({ method, url, data: values })
+        apiClient({ method, url, data: values })
             .then(res => {
                 alert(`Event ${eventIdToEdit ? 'updated' : 'submitted'} successfully!`);
                 navigate(`/events/${res.data.id}`);
@@ -84,13 +84,10 @@ function SubmitEventPage() {
                     <Form>
                         <Field name="title" placeholder="Event Title" className="input-style" />
                         <ErrorMessage name="title" component="div" className="error" />
-
                         <Field name="description" placeholder="Event Description" as="textarea" rows="5" className="input-style" />
                         <ErrorMessage name="description" component="div" className="error" />
-
                         <Field name="source_link" placeholder="Source Link (e.g., https://en.wikipedia.org/...)" className="input-style" />
                         <ErrorMessage name="source_link" component="div" className="error" />
-                        
                         <div style={{ display: 'flex', gap: '1rem' }}>
                             <div style={{flex: 1}}>
                                 <Field name="year" type="number" placeholder="Year" className="input-style" />
@@ -105,10 +102,8 @@ function SubmitEventPage() {
                                 <ErrorMessage name="day" component="div" className="error" />
                             </div>
                         </div>
-
                         <Field name="image_url" placeholder="Image URL (optional)" className="input-style" />
                         <ErrorMessage name="image_url" component="div" className="error" />
-
                         <div style={{background: '#282c34', padding: '1rem', borderRadius: '5px', margin: '2rem 0'}}>
                             <FieldArray name="categories">
                                 {({ push, remove }) => (
@@ -137,7 +132,6 @@ function SubmitEventPage() {
                                 )}
                             </FieldArray>
                         </div>
-                        
                         {error && <div className="error">{error}</div>}
                         <button type="submit" disabled={isSubmitting}>{eventIdToEdit ? 'Update Event' : 'Submit Event'}</button>
                     </Form>

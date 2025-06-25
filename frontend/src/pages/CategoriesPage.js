@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { UserContext } from '../context/UserContext';
@@ -12,7 +12,7 @@ function CategoriesPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get('/api/categories')
+        apiClient.get('/api/categories')
             .then(res => setCategories(res.data))
             .catch(err => setError('Could not fetch categories.'));
     }, []);
@@ -24,7 +24,7 @@ function CategoriesPage() {
             description: Yup.string(),
         }),
         onSubmit: (values, { setSubmitting, resetForm }) => {
-            axios.post('/api/categories', values)
+            apiClient.post('/api/categories', values)
                 .then(res => {
                     setCategories([...categories, res.data].sort((a,b) => a.name.localeCompare(b.name)));
                     resetForm();
@@ -36,7 +36,7 @@ function CategoriesPage() {
 
     const handleDelete = (catId) => {
         if (window.confirm('Are you sure? This will remove the category from all associated events.')) {
-            axios.delete(`/api/categories/${catId}`)
+            apiClient.delete(`/api/categories/${catId}`)
                 .then(() => {
                     setCategories(categories.filter(c => c.id !== catId));
                 })

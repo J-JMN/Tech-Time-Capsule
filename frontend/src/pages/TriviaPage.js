@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 
 function TriviaPage() {
     const initialScore = Number(localStorage.getItem('triviaScore')) || 0;
@@ -19,7 +19,7 @@ function TriviaPage() {
         setFeedback('');
         setGuess('');
         setAnswered(false);
-        axios.get('/api/trivia')
+        apiClient.get('/api/trivia')
             .then(res => setQuestion(res.data))
             .catch(err => setFeedback('Could not load a question. Please try again.'))
             .finally(() => setLoading(false));

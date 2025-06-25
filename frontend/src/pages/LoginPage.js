@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
 import { UserContext } from '../context/UserContext';
+import apiClient from '../api/axios';
 
 function LoginPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -12,21 +13,15 @@ function LoginPage() {
     const handleAuth = (values) => {
         setError('');
         const endpoint = isLogin ? '/api/login' : '/api/signup';
-        fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(values),
-        })
-        .then(res => res.json().then(data => ({ ok: res.ok, data })))
-        .then(({ ok, data }) => {
-            if (ok) {
-                setUser(data);
+        
+        apiClient.post(endpoint, values)
+            .then(res => {
+                setUser(res.data);
                 navigate('/');
-            } else {
-                setError(data.error);
-            }
-        })
-        .catch(err => setError("An unexpected error occurred."));
+            })
+            .catch(err => {
+                setError(err.response?.data?.error || "An unexpected error occurred.");
+            });
     };
 
     return (

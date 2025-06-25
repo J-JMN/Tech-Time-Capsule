@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/axios';
 
 function EventDetailPage() {
     const [event, setEvent] = useState(null);
@@ -10,7 +10,7 @@ function EventDetailPage() {
 
     useEffect(() => {
         setLoading(true);
-        axios.get(`/api/events/${id}`)
+        apiClient.get(`/api/events/${id}`)
             .then(res => setEvent(res.data))
             .catch(err => setError('Event not found or an error occurred.'))
             .finally(() => setLoading(false));
@@ -28,7 +28,7 @@ function EventDetailPage() {
                 Date: {event.month}/{event.day}/{event.year} | Submitted by: {event.user.username}
             </p>
             <p style={{fontSize: '1.1rem'}}>{event.description}</p>
-            <a href={event.source_link} target="_blank" rel="noopener noreferrer">Learn more at the source</a>
+            {event.source_link && <a href={event.source_link} target="_blank" rel="noopener noreferrer">Learn more at the source</a>}
 
             <h3 style={{marginTop: '2rem', borderTop: '1px solid #444', paddingTop: '1rem'}}>Related Categories:</h3>
             {event.event_categories.length > 0 ? (

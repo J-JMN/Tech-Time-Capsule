@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
-import axios from 'axios';
+import apiClient from '../api/axios';
 
 function EventCard({ event, onDelete }) {
     const { user } = useContext(UserContext);
@@ -16,7 +16,7 @@ function EventCard({ event, onDelete }) {
 
     const handleDelete = () => {
         if (window.confirm('Are you sure you want to delete this event?')) {
-            axios.delete(`/api/events/${event.id}`)
+            apiClient.delete(`/api/events/${event.id}`)
                 .then(() => {
                     alert('Event deleted successfully.');
                     if (onDelete) onDelete(event.id);

@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
+import apiClient from '../api/axios';
 
 export const UserContext = createContext(null);
 
@@ -8,25 +9,12 @@ export const UserProvider = ({ children }) => {
 
     const checkSession = useCallback(() => {
         setLoading(true);
-        fetch('/api/check_session')
+        apiClient.get('/api/check_session')
             .then(res => {
-                if (res.status === 204) {
-                    setUser(null);
-                    return null; 
-                }
-                if (res.ok) {
-                    return res.json();
-                }
-                setUser(null);
-                return null;
-            })
-            .then(data => {
-                if (data) {
-                    setUser(data);
-                }
+                setUser(res.data);
             })
             .catch(error => {
-                console.error("Error checking session:", error);
+                // A 401 or other error means no active session, which is normal
                 setUser(null);
             })
             .finally(() => setLoading(false));

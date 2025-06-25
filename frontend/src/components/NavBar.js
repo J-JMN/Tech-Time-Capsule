@@ -1,20 +1,21 @@
 import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
+import apiClient from '../api/axios';
 
 function NavBar() {
     const { user, setUser } = useContext(UserContext);
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        fetch('/api/logout', { method: 'DELETE' }).then(() => {
+        apiClient.delete('/api/logout').then(() => {
             setUser(null);
             navigate('/login');
         });
     };
 
     const linkStyle = { color: '#f0f0f0', textDecoration: 'none', marginRight: '1.5rem', fontWeight: 'bold' };
-    const activeLinkStyle = { color: '#15b3db' };
+    const activeLinkStyle = { color: '#61dafb' };
 
     return (
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', background: '#282c34' }}>

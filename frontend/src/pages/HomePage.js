@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import EventCard from '../components/EventCard';
-
-// Get API base URL from environment or fallback to relative path for dev
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
@@ -31,7 +28,6 @@ function HomePage() {
     const fetchEvents = useCallback(async () => {
         setIsLoading(true);
         setError('');
-
         const params = new URLSearchParams();
         let url = '/api/events';
 
@@ -42,15 +38,13 @@ function HomePage() {
                 params.append('category_id', filters.category_id);
             } else {
                 if (filters.years) {
-                    const yearsList = filters.years.split(',').map(y => y.trim()).filter(Boolean);
-                    if (yearsList.length) params.append('years', yearsList.join(','));
+                    params.append('years', filters.years);
                 } else {
                     const [year] = (viewMode === 'daily' ? filters.date : filters.month).split('-').map(Number);
                     params.append('year', year);
                 }
-
-                const [, month, day] = filters.date.split('-').map(Number);
                 if (viewMode === 'daily') {
+                    const [, month, day] = filters.date.split('-').map(Number);
                     params.append('month', month);
                     params.append('day', day);
                 } else {
@@ -58,21 +52,14 @@ function HomePage() {
                     params.append('month', monthOnly);
                 }
             }
-
             if (filters.sort === 'newest') {
                 params.append('sort', 'newest');
             }
         }
-
         try {
-            const response = await axios.get(`${API_BASE_URL}${url}?${params.toString()}`);
-            if (Array.isArray(response.data)) {
-                setEvents(response.data);
-                if (response.data.length === 0) setError('No events found for this selection.');
-            } else {
-                setError('Unexpected response format.');
-                setEvents([]);
-            }
+            const response = await apiClient.get(`${url}?${params.toString()}`);
+            setEvents(response.data);
+            if (response.data.length === 0) setError('No events found for this selection.');
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while fetching events.');
         } finally {
@@ -91,11 +78,10 @@ function HomePage() {
             setFilters(f => ({ ...f, category_id: categoryId || '', sort: sort || 'historical', years: '' }));
             if (isInitialLoad) setIsInitialLoad(false);
         }
-    }, [location.search]);
+    }, [location.search, query, isInitialLoad]);
 
     const handleFilterChange = (updates) => {
         const newFilters = { ...filters, ...updates, category_id: '' };
-
         if ('years' in updates) {
             const yearInput = updates.years;
             if (/^\d{4}$/.test(yearInput)) {
@@ -103,7 +89,6 @@ function HomePage() {
                 newFilters.month = `${yearInput}${filters.month.substring(4)}`;
             }
         }
-
         setFilters(newFilters);
         if (isInitialLoad) setIsInitialLoad(false);
         navigate('/');
@@ -112,12 +97,11 @@ function HomePage() {
     const handleEventDelete = (deletedEventId) => {
         setEvents(prevEvents => prevEvents.filter(event => event.id !== deletedEventId));
     };
-
+    
     return (
         <div>
             <h1>Explore Tech History</h1>
-            <p>{isInitialLoad ? "Showing a random selection of featured events. Use the filters to find specific moments." : `Showing filtered results.`}</p>
-
+            <p>{isInitialLoad ? "Showing a random selection of featured events. Use the filters to find specific moments." : "Showing filtered results."}</p>
             <div style={{ marginBottom: '2rem', background: '#282c34', padding: '1rem', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderBottom: '1px solid #444', paddingBottom: '1rem', flexWrap: 'wrap' }}>
                     <div>
@@ -133,27 +117,24 @@ function HomePage() {
                         </select>
                     </div>
                 </div>
-
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '1rem' }}>
                     {viewMode === 'daily' ? (
                         <input type="date" value={filters.date} onChange={(e) => handleFilterChange({ date: e.target.value })} />
                     ) : (
                         <input type="month" value={filters.month} onChange={(e) => handleFilterChange({ month: e.target.value })} />
                     )}
-                    <input 
-                        type="text" 
-                        placeholder="Or filter by single/multiple years" 
+                    <input
+                        type="text"
+                        placeholder="Or filter by single/multiple years"
                         value={filters.years}
                         onChange={(e) => handleFilterChange({ years: e.target.value })}
                         style={{flex: 1, minWidth: '250px'}}
                     />
                 </div>
             </div>
-
             {isLoading && <p>Loading events...</p>}
             {error && <p style={{color: 'orange'}}>{error}</p>}
-            {!isLoading && Array.isArray(events) && events.map(event => <EventCard key={event.id} event={event} onDelete={handleEventDelete} />)}
-            {!isLoading && !Array.isArray(events) && <p style={{ color: 'red' }}>Unexpected response from server.</p>}
+            {!isLoading && events.map(event => <EventCard key={event.id} event={event} onDelete={handleEventDelete} />)}
         </div>
     );
 }

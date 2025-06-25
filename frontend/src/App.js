@@ -11,6 +11,7 @@ import { UserContext } from './context/UserContext';
 
 function App() {
   const { loading } = useContext(UserContext);
+
   if (loading) {
     return <div style={{textAlign: 'center', marginTop: '5rem', fontSize: '1.5rem'}}>Loading Application...</div>;
   }
