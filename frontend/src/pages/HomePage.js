@@ -3,7 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import EventCard from '../components/EventCard';
 
-// Helper hook to easily get URL query parameters
+// Get API base URL from environment or fallback to relative path for dev
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+
 function useQuery() {
     return new URLSearchParams(useLocation().search);
 }
@@ -13,74 +15,64 @@ function HomePage() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // State to determine if we should show featured events or filtered results
     const [isInitialLoad, setIsInitialLoad] = useState(!query.get('category_id') && !query.get('sort'));
-    
-    // State for UI controls
     const [viewMode, setViewMode] = useState('daily');
     const [events, setEvents] = useState([]);
     const [filters, setFilters] = useState({
-        date: new Date().toISOString().slice(0, 10), // e.g., "2025-06-24"
-        month: new Date().toISOString().slice(0, 7),  // e.g., "2025-06"
+        date: new Date().toISOString().slice(0, 10),
+        month: new Date().toISOString().slice(0, 7),
         years: '',
         sort: query.get('sort') || 'historical',
         category_id: query.get('category_id') || ''
     });
-
-    // State for loading and error messages
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // The main function to fetch event data from the backend
     const fetchEvents = useCallback(async () => {
         setIsLoading(true);
         setError('');
-        
+
         const params = new URLSearchParams();
         let url = '/api/events';
 
         if (isInitialLoad) {
             url = '/api/events/featured';
         } else {
-            // If filtering by a category, it takes top priority
             if (filters.category_id) {
                 params.append('category_id', filters.category_id);
             } else {
-                // Otherwise, use the date/year filters
-                // Year text input takes priority over date pickers
                 if (filters.years) {
-                    params.append('years', filters.years);
+                    const yearsList = filters.years.split(',').map(y => y.trim()).filter(Boolean);
+                    if (yearsList.length) params.append('years', yearsList.join(','));
                 } else {
-                    if (viewMode === 'daily') {
-                        const [year] = filters.date.split('-').map(Number);
-                        params.append('year', year);
-                    } else { // monthly view
-                        const [year] = filters.month.split('-').map(Number);
-                        params.append('year', year);
-                    }
+                    const [year] = (viewMode === 'daily' ? filters.date : filters.month).split('-').map(Number);
+                    params.append('year', year);
                 }
-                
-                // Month and Day filters are always added based on the view mode
+
+                const [, month, day] = filters.date.split('-').map(Number);
                 if (viewMode === 'daily') {
-                    const [, month, day] = filters.date.split('-').map(Number);
                     params.append('month', month);
                     params.append('day', day);
                 } else {
-                    const [, month] = filters.month.split('-').map(Number);
-                    params.append('month', month);
+                    const [, monthOnly] = filters.month.split('-').map(Number);
+                    params.append('month', monthOnly);
                 }
             }
-            
-            // Add the sorting parameter
+
             if (filters.sort === 'newest') {
                 params.append('sort', 'newest');
             }
         }
 
         try {
-            const response = await axios.get(`${url}?${params.toString()}`);
-            setEvents(response.data);
-            if (response.data.length === 0) setError('No events found for this selection.');
+            const response = await axios.get(`${API_BASE_URL}${url}?${params.toString()}`);
+            if (Array.isArray(response.data)) {
+                setEvents(response.data);
+                if (response.data.length === 0) setError('No events found for this selection.');
+            } else {
+                setError('Unexpected response format.');
+                setEvents([]);
+            }
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while fetching events.');
         } finally {
@@ -88,12 +80,10 @@ function HomePage() {
         }
     }, [filters, isInitialLoad, viewMode]);
 
-    // This effect runs the fetchEvents function whenever its dependencies change
     useEffect(() => {
         fetchEvents();
     }, [fetchEvents]);
 
-    // This effect listens for changes in the URL (e.g., clicking a category link)
     useEffect(() => {
         const categoryId = query.get('category_id');
         const sort = query.get('sort');
@@ -103,37 +93,31 @@ function HomePage() {
         }
     }, [location.search]);
 
-    // This function handles all changes from the filter controls
     const handleFilterChange = (updates) => {
-        // Create new filter state by merging updates, but clear category_id
         const newFilters = { ...filters, ...updates, category_id: '' };
-        
-        // Synchronize the date/month pickers if a single year is typed
+
         if ('years' in updates) {
             const yearInput = updates.years;
             if (/^\d{4}$/.test(yearInput)) {
-                const newYear = yearInput;
-                newFilters.date = `${newYear}${filters.date.substring(4)}`;
-                newFilters.month = `${newYear}${filters.month.substring(4)}`;
+                newFilters.date = `${yearInput}${filters.date.substring(4)}`;
+                newFilters.month = `${yearInput}${filters.month.substring(4)}`;
             }
         }
 
         setFilters(newFilters);
         if (isInitialLoad) setIsInitialLoad(false);
-        // Navigate to root to clear URL params when using main filters
-        navigate('/'); 
+        navigate('/');
     };
-    
-    // This function handles deleting an event from the list without a page refresh
+
     const handleEventDelete = (deletedEventId) => {
         setEvents(prevEvents => prevEvents.filter(event => event.id !== deletedEventId));
     };
-    
+
     return (
         <div>
             <h1>Explore Tech History</h1>
             <p>{isInitialLoad ? "Showing a random selection of featured events. Use the filters to find specific moments." : `Showing filtered results.`}</p>
-            
+
             <div style={{ marginBottom: '2rem', background: '#282c34', padding: '1rem', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderBottom: '1px solid #444', paddingBottom: '1rem', flexWrap: 'wrap' }}>
                     <div>
@@ -168,7 +152,8 @@ function HomePage() {
 
             {isLoading && <p>Loading events...</p>}
             {error && <p style={{color: 'orange'}}>{error}</p>}
-            {!isLoading && events.map(event => <EventCard key={event.id} event={event} onDelete={handleEventDelete} />)}
+            {!isLoading && Array.isArray(events) && events.map(event => <EventCard key={event.id} event={event} onDelete={handleEventDelete} />)}
+            {!isLoading && !Array.isArray(events) && <p style={{ color: 'red' }}>Unexpected response from server.</p>}
         </div>
     );
 }
