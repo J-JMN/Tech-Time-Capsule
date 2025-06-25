@@ -5,8 +5,7 @@ services:
     region: frankfurt
     plan: free
     rootDir: backend
-    buildCommand: "pipenv install --system --deploy"
-    preDeployCommand: "flask db upgrade && flask seed_db"
+    buildCommand: "pipenv install --system --deploy && flask db upgrade && flask seed_db"
     startCommand: "gunicorn wsgi:app"
     envVars:
       - key: DATABASE_URL
