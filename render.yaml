@@ -19,13 +19,14 @@ services:
       - key: SECRET_KEY
         generateValue: true
 
-  - type: static site 
+  - type: web
     name: tech-time-capsule-client
+    runtime: static
     region: frankfurt
     plan: free
     rootDir: frontend
     buildCommand: "npm install && npm run build"
-    publishDir: "./build"
+    staticPublishPath: "./build"
     routes:
       - type: rewrite
         source: "/*"
