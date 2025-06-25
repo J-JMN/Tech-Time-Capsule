@@ -5,7 +5,8 @@ services:
     region: frankfurt
     plan: free
     rootDir: backend
-    buildCommand: "pipenv install --system --deploy && flask db upgrade && flask seed_db"
+    buildCommand: "pipenv install --system --deploy"
+    preDeployCommand: "flask db upgrade && flask seed_db"
     startCommand: "gunicorn wsgi:app"
     envVars:
       - key: DATABASE_URL
@@ -13,7 +14,7 @@ services:
           name: tech-capsule-db
           property: connectionString
       - key: PYTHON_VERSION
-        value: "3.11"
+        value: "3.11.1"
       - key: FLASK_APP
         value: "wsgi.py" 
       - key: SECRET_KEY
@@ -22,6 +23,7 @@ services:
   - type: web
     name: tech-time-capsule-client
     runtime: static
+    rootDir: frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: "./build"
     routes:
