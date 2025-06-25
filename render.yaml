@@ -22,7 +22,6 @@ services:
   - type: web
     name: tech-time-capsule-client
     runtime: static
-    region: frankfurt
     plan: free
     rootDir: frontend
     buildCommand: "npm install && npm run build"
