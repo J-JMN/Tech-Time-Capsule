@@ -39,7 +39,7 @@ button:disabled {
 input, textarea, select {
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #555;
+    border: 1px solid #15b3db;
     background-color: #333;
     color: #f0f0f0;
     width: 100%;

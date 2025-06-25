@@ -14,12 +14,12 @@ function NavBar() {
     };
 
     const linkStyle = { color: '#f0f0f0', textDecoration: 'none', marginRight: '1.5rem', fontWeight: 'bold' };
-    const activeLinkStyle = { color: '#61dafb' };
+    const activeLinkStyle = { color: '#15b3db' };
 
     return (
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', background: '#282c34' }}>
             <div>
-                <NavLink to="/" style={linkStyle}>📅 Tech Time Capsule</NavLink>
+                <NavLink to="/" style={linkStyle}>Tech Time Capsule</NavLink>
             </div>
             <nav>
                 <NavLink to="/categories" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? activeLinkStyle : {}) })}>Categories</NavLink>
