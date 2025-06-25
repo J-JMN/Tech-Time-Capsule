@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -18,12 +19,19 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    # --- PRODUCTION-READY CORS SETUP ---
+    # This explicitly allows deployed frontend to make requests
+    # and handle cookies from deployed backend.
+    CORS(
+        app,
+        supports_credentials=True, # This is crucial for session cookies
+        origins=["http://localhost:3000", "https://tech-time-capsule-client.onrender.com"] 
+    )
+
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     
-    CORS(app, supports_credentials=True)
-
     from .routes import bp as main_bp
     app.register_blueprint(main_bp)
 
