@@ -7,10 +7,8 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     _password_hash = db.Column(db.String(128), nullable=False)
-
     events = db.relationship('Event', back_populates='user', cascade='all, delete-orphan')
     categories = db.relationship('Category', back_populates='user', cascade='all, delete-orphan')
-    
     serialize_rules = ('-events.user', '-categories.user', '-_password_hash',)
 
     @hybrid_property
@@ -33,13 +31,11 @@ class Event(db.Model, SerializerMixin):
     month = db.Column(db.Integer, nullable=False)
     day = db.Column(db.Integer, nullable=False)
     image_url = db.Column(db.String(500))
-    source_link = db.Column(db.String(500), nullable=False)
+    source_link = db.Column(db.String(500))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-
     user = db.relationship('User', back_populates='events')
     event_categories = db.relationship('EventCategory', back_populates='event', cascade='all, delete-orphan')
-
     serialize_rules = ('-user.events', '-user.categories', '-event_categories.event', 'event_categories.category', 'user.username')
 
 class Category(db.Model, SerializerMixin):
@@ -48,10 +44,8 @@ class Category(db.Model, SerializerMixin):
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-
     user = db.relationship('User', back_populates='categories')
     event_categories = db.relationship('EventCategory', back_populates='category', cascade='all, delete-orphan')
-    
     serialize_rules = ('-user.categories', '-user.events', '-event_categories.category', 'user.username')
 
 class EventCategory(db.Model, SerializerMixin):
@@ -60,8 +54,6 @@ class EventCategory(db.Model, SerializerMixin):
     event_id = db.Column(db.Integer, db.ForeignKey('events.id'), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     relationship_description = db.Column(db.String(255), nullable=False)
-
     event = db.relationship('Event', back_populates='event_categories')
     category = db.relationship('Category', back_populates='event_categories')
-
     serialize_rules = ('-event.event_categories', '-category.event_categories', 'category.name')
