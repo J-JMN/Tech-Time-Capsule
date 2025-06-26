@@ -14,27 +14,28 @@ function NavBar() {
         });
     };
 
-    const linkStyle = { color: '#f0f0f0', textDecoration: 'none', marginRight: '1.5rem', fontWeight: 'bold' };
-    const activeLinkStyle = { color: '#61dafb' };
-
     return (
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', background: '#282c34' }}>
-            <div>
-                <NavLink to="/" style={linkStyle}>Tech Time Capsule</NavLink>
+        <header className="navbar">
+            <div className="navbar-brand">
+                <NavLink to="/" className="nav-link">Tech Time Capsule</NavLink>
             </div>
-            <nav>
-                <NavLink to="/categories" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? activeLinkStyle : {}) })}>Categories</NavLink>
-                <NavLink to="/trivia" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? activeLinkStyle : {}) })}>Play Trivia</NavLink>
+            <nav className="navbar-links">
+                <NavLink to="/categories" className="nav-link">Categories</NavLink>
+                <NavLink to="/trivia" className="nav-link">Play Trivia</NavLink>
+                {user ? (
+                    <NavLink to="/submit" className="nav-link">Submit Event</NavLink>
+                ) : null}
+            </nav>
+            <div className="navbar-user">
                 {user ? (
                     <>
-                        <NavLink to="/submit" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? activeLinkStyle : {}) })}>Submit Event</NavLink>
-                        <span style={{ color: '#aaa', marginRight: '1.5rem' }}>Welcome, {user.username}!</span>
+                        <span>Welcome, {user.username}!</span>
                         <button onClick={handleLogout}>Logout</button>
                     </>
                 ) : (
-                    <NavLink to="/login" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? activeLinkStyle : {}) })}>Login / Signup</NavLink>
+                    <NavLink to="/login" className="nav-link">Login / Signup</NavLink>
                 )}
-            </nav>
+            </div>
         </header>
     );
 }

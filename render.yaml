@@ -1,5 +1,4 @@
 services:
-  # The Python Backend Service
   - type: web
     name: tech-time-capsule-api
     runtime: python
@@ -16,11 +15,10 @@ services:
       - key: PYTHON_VERSION
         value: "3.11"
       - key: FLASK_APP
-        value: "wsgi.py"
+        value: "wsgi.py" 
       - key: SECRET_KEY
         generateValue: true
 
-  # The React Frontend Service
   - type: static site
     name: tech-time-capsule-client
     region: frankfurt
@@ -28,8 +26,9 @@ services:
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     publishDir: "./build"
-    # The REACT_APP_API_BASE_URL will be set in the Render Dashboard Environment
-    # to avoid committing the URL directly to git.
+    envVars:
+      - key: REACT_APP_API_BASE_URL
+        value: "https://tech-time-capsule-api.onrender.com"
     routes:
       - type: rewrite
         source: "/*"

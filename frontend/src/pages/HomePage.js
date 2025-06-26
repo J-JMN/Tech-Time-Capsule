@@ -31,7 +31,7 @@ function HomePage() {
         const params = new URLSearchParams();
         let url = '/api/events';
 
-        if (isInitialLoad) {
+        if (isInitialLoad && !filters.category_id) {
             url = '/api/events/featured';
         } else {
             if (filters.category_id) {
@@ -59,7 +59,9 @@ function HomePage() {
         try {
             const response = await apiClient.get(`${url}?${params.toString()}`);
             setEvents(response.data);
-            if (response.data.length === 0) setError('No events found for this selection.');
+            if (response.data.length === 0 && !(isInitialLoad && !filters.category_id)) {
+                 setError('No events found for this selection.');
+            }
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while fetching events.');
         } finally {
@@ -73,12 +75,11 @@ function HomePage() {
 
     useEffect(() => {
         const categoryId = query.get('category_id');
-        const sort = query.get('sort');
-        if (categoryId || sort) {
-            setFilters(f => ({ ...f, category_id: categoryId || '', sort: sort || 'historical', years: '' }));
-            if (isInitialLoad) setIsInitialLoad(false);
+        if (categoryId && categoryId !== filters.category_id) {
+            setIsInitialLoad(false);
+            setFilters(f => ({ ...f, category_id: categoryId, years: '' }));
         }
-    }, [location.search, query, isInitialLoad]);
+    }, [location.search]);
 
     const handleFilterChange = (updates) => {
         const newFilters = { ...filters, ...updates, category_id: '' };
@@ -89,11 +90,11 @@ function HomePage() {
                 newFilters.month = `${yearInput}${filters.month.substring(4)}`;
             }
         }
+        setIsInitialLoad(false);
         setFilters(newFilters);
-        if (isInitialLoad) setIsInitialLoad(false);
-        navigate('/');
+        if (location.search) navigate('/');
     };
-
+    
     const handleEventDelete = (deletedEventId) => {
         setEvents(prevEvents => prevEvents.filter(event => event.id !== deletedEventId));
     };
@@ -101,15 +102,16 @@ function HomePage() {
     return (
         <div>
             <h1>Explore Tech History</h1>
-            <p>{isInitialLoad ? "Showing a random selection of featured events. Use the filters to find specific moments." : "Showing filtered results."}</p>
-            <div style={{ marginBottom: '2rem', background: '#282c34', padding: '1rem', borderRadius: '8px' }}>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderBottom: '1px solid #444', paddingBottom: '1rem', flexWrap: 'wrap' }}>
+            <p>{isInitialLoad && !filters.category_id ? "Showing a random selection of featured events. Use the filters to find specific moments." : "Showing filtered results."}</p>
+            
+            <div className="filter-controls">
+                <div className="filter-row">
                     <div>
                         <strong>View Mode:</strong>
                         <button onClick={() => { setViewMode('daily'); if(isInitialLoad) setIsInitialLoad(false); }} disabled={viewMode === 'daily'}>Daily</button>
                         <button onClick={() => { setViewMode('monthly'); if(isInitialLoad) setIsInitialLoad(false); }} disabled={viewMode === 'monthly'}>Monthly</button>
                     </div>
-                    <div style={{marginLeft: 'auto'}}>
+                    <div>
                         <strong>Sort By:</strong>
                         <select value={filters.sort} onChange={(e) => handleFilterChange({ sort: e.target.value })}>
                             <option value="historical">Historical Date</option>
@@ -117,21 +119,21 @@ function HomePage() {
                         </select>
                     </div>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '1rem' }}>
+                <div className="filter-group">
                     {viewMode === 'daily' ? (
                         <input type="date" value={filters.date} onChange={(e) => handleFilterChange({ date: e.target.value })} />
                     ) : (
                         <input type="month" value={filters.month} onChange={(e) => handleFilterChange({ month: e.target.value })} />
                     )}
-                    <input
-                        type="text"
-                        placeholder="Or filter by single/multiple years"
+                    <input 
+                        type="text" 
+                        placeholder="Or filter by single/multiple years" 
                         value={filters.years}
                         onChange={(e) => handleFilterChange({ years: e.target.value })}
-                        style={{flex: 1, minWidth: '250px'}}
                     />
                 </div>
             </div>
+
             {isLoading && <p>Loading events...</p>}
             {error && <p style={{color: 'orange'}}>{error}</p>}
             {!isLoading && events.map(event => <EventCard key={event.id} event={event} onDelete={handleEventDelete} />)}

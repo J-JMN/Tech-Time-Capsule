@@ -19,13 +19,10 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # --- PRODUCTION-READY CORS SETUP ---
-    # This explicitly allows deployed frontend to make requests
-    # and handle cookies from deployed backend.
     CORS(
         app,
-        supports_credentials=True, # This is crucial for session cookies
-        origins=["http://localhost:3000", "https://tech-time-capsule-client.onrender.com"] 
+        supports_credentials=True,
+        origins=["http://localhost:3000", "https://tech-time-capsule-client.onrender.com"]
     )
 
     db.init_app(app)

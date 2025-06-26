@@ -8,6 +8,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import EventDetailPage from './pages/EventDetailPage';
 import { useContext } from 'react';
 import { UserContext } from './context/UserContext';
+import './App.css'; // Import the new CSS file
 
 function App() {
   const { loading } = useContext(UserContext);
