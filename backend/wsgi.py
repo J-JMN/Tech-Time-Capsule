@@ -1,6 +1,6 @@
 import time
 import click
-import requests
+import requests  #type: ignore
 from datetime import datetime, date, timedelta
 from app import create_app, db
 from app.models import User, Event, Category, EventCategory

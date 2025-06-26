@@ -1,9 +1,9 @@
 import os
 from flask import Flask
-from flask_bcrypt import Bcrypt
-from flask_cors import CORS
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt #type: ignore
+from flask_cors import CORS     #type: ignore
+from flask_migrate import Migrate   #type: ignore
+from flask_sqlalchemy import SQLAlchemy   #type: ignore
 from sqlalchemy import MetaData
 from config import Config
 
