@@ -51,7 +51,8 @@ def seed_db():
     event1 = Event(title="First iPhone Announced", description="Steve Jobs unveiled the first iPhone.", year=2007, month=1, day=9, user_id=archivist.id, image_url="https://i.imgur.com/39g4g4G.png", source_link="https://en.wikipedia.org/wiki/IPhone_(1st_generation)")
     event2 = Event(title="Windows 95 Released", description="Microsoft's game-changing operating system.", year=1995, month=8, day=24, user_id=archivist.id, image_url="https://i.imgur.com/g237s54.png", source_link="https://en.wikipedia.org/wiki/Windows_95")
     event3 = Event(title="First '.com' Domain Registered", description="Symbolics.com becomes the first-ever registered .com domain name.", year=1985, month=3, day=15, user_id=archivist.id, image_url="https://i.imgur.com/kH8cQ2n.jpeg", source_link="https://en.wikipedia.org/wiki/Symbolics")
-    event4 = Event(title="Google Founded", description="Larry Page and Sergey Brin incorporate Google in a garage.", year=1998, month=9, day=4, user_id=archivist.id, image_url="https://i.imgur.com/N2yO9hI.png", source_link="https://en.wikipedia.org/wiki/History_of_Google")
+    event4 = Event(title="Google Founded", description="Larry Page and Sergey Brin incorporate Google in a garage.", year=1998, month=9,
+                    day=4, user_id=archivist.id, image_url="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1120&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dg", source_link="https://en.wikipedia.org/wiki/History_of_Google")
     db.session.add_all([event1, event2, event3, event4])
     db.session.commit()
     assoc1 = EventCategory(event_id=event1.id, category_id=cat_pl.id, relationship_description="Revolutionized the mobile industry")
