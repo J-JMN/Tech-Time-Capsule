@@ -41,6 +41,7 @@
 The application is live at the following URL:
 
 **[➡️ Live Application Link](https://tech-time-capsule-client.onrender.com/)**
+### POINT TO NOTE: The deployed project does not feature data fetched from Wikipedia API for financial reasons with render having to access the shell to run my populate command. Although, on the local machine, in the virtual environment in the backend, if you were to run the commands beginning with the term "flask"(i.e "flask populate_db_year 2023 --fast" if you want a quick fetch for the year - it will still take some time but less than it normally would if you ran "flask populate_db_year 2023") it will fetch data for that year and display it in your local environment which is how it should work. You could also fetch data all the way from 2000 to 2024 with this command "./populate.sh" 
 
 ## ⚙️ Getting Started: Local Setup
 
