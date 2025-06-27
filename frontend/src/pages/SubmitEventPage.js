@@ -29,7 +29,7 @@ function SubmitEventPage() {
                 const event = res.data;
                 setInitialValues({
                     title: event.title, description: event.description,
-                    source_link: event.source_link, year: event.year,
+                    source_link: event.source_link || '', year: event.year,
                     month: event.month, day: event.day, image_url: event.image_url || '',
                     categories: event.event_categories.map(ec => ({
                         category_id: ec.category.id.toString(),
@@ -82,56 +82,56 @@ function SubmitEventPage() {
             <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} enableReinitialize>
                 {({ values, isSubmitting }) => (
                     <Form>
-                        <Field name="title" placeholder="Event Title" className="input-style" />
+                        <Field name="title" placeholder="Event Title" />
                         <ErrorMessage name="title" component="div" className="error" />
-                        <Field name="description" placeholder="Event Description" as="textarea" rows="5" className="input-style" />
+
+                        <Field name="description" placeholder="Event Description" as="textarea" rows="5" />
                         <ErrorMessage name="description" component="div" className="error" />
-                        <Field name="source_link" placeholder="Source Link (e.g., https://en.wikipedia.org/...)" className="input-style" />
+
+                        <Field name="source_link" placeholder="Source Link (e.g., https://en.wikipedia.org/...)" />
                         <ErrorMessage name="source_link" component="div" className="error" />
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                            <div style={{flex: 1}}>
-                                <Field name="year" type="number" placeholder="Year" className="input-style" />
-                                <ErrorMessage name="year" component="div" className="error" />
-                            </div>
-                            <div style={{flex: 1}}>
-                                <Field name="month" type="number" placeholder="Month" className="input-style" />
-                                <ErrorMessage name="month" component="div" className="error" />
-                            </div>
-                             <div style={{flex: 1}}>
-                                <Field name="day" type="number" placeholder="Day" className="input-style" />
-                                <ErrorMessage name="day" component="div" className="error" />
-                            </div>
+                        
+                        <div className="form-grid">
+                            <Field name="year" type="number" placeholder="Year" />
+                            <Field name="month" type="number" placeholder="Month" />
+                            <Field name="day" type="number" placeholder="Day" />
                         </div>
-                        <Field name="image_url" placeholder="Image URL (optional)" className="input-style" />
+                        <ErrorMessage name="year" component="div" className="error" />
+                        <ErrorMessage name="month" component="div" className="error" />
+                        <ErrorMessage name="day" component="div" className="error" />
+
+                        <Field name="image_url" placeholder="Image URL (optional)" />
                         <ErrorMessage name="image_url" component="div" className="error" />
-                        <div style={{background: '#282c34', padding: '1rem', borderRadius: '5px', margin: '2rem 0'}}>
+
+                        <div style={{background: '#282c34', padding: '1.5rem', borderRadius: '8px', margin: '2rem 0'}}>
                             <FieldArray name="categories">
                                 {({ push, remove }) => (
                                     <div>
                                         <h3 style={{marginTop: 0}}>Assign Categories</h3>
                                         {values.categories.map((cat, index) => (
-                                            <div key={index} style={{display: 'flex', gap: '1rem', alignItems: 'start', borderTop: '1px solid #444', paddingTop: '1rem', marginBottom: '1rem'}}>
+                                            <div key={index} className="category-assignment">
                                                 <div style={{flex: 2}}>
-                                                    <Field as="select" name={`categories.${index}.category_id`} className="input-style">
+                                                    <Field as="select" name={`categories.${index}.category_id`}>
                                                         <option value="">Select a Category</option>
                                                         {availableCategories.map(ac => <option key={ac.id} value={ac.id}>{ac.name}</option>)}
                                                     </Field>
                                                     <ErrorMessage name={`categories.${index}.category_id`} component="div" className="error" />
                                                 </div>
                                                 <div style={{flex: 3}}>
-                                                    <Field name={`categories.${index}.relationship_description`} placeholder="Relationship (e.g., 'Pioneering work')" className="input-style"/>
+                                                    <Field name={`categories.${index}.relationship_description`} placeholder="Relationship (e.g., 'Pioneering work')"/>
                                                     <ErrorMessage name={`categories.${index}.relationship_description`} component="div" className="error" />
                                                 </div>
-                                                <button type="button" onClick={() => remove(index)} style={{background: '#ff6b6b'}}>X</button>
+                                                <button type="button" onClick={() => remove(index)} className="btn-delete">X</button>
                                             </div>
                                         ))}
-                                        <button type="button" onClick={() => push({ category_id: '', relationship_description: '' })} style={{background: '#4CAF50'}}>
+                                        <button type="button" onClick={() => push({ category_id: '', relationship_description: '' })} className="btn-add">
                                             + Add Category Assignment
                                         </button>
                                     </div>
                                 )}
                             </FieldArray>
                         </div>
+                        
                         {error && <div className="error">{error}</div>}
                         <button type="submit" disabled={isSubmitting}>{eventIdToEdit ? 'Update Event' : 'Submit Event'}</button>
                     </Form>

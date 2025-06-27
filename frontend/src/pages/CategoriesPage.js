@@ -29,7 +29,7 @@ function CategoriesPage() {
                     setCategories([...categories, res.data].sort((a,b) => a.name.localeCompare(b.name)));
                     resetForm();
                 })
-                .catch(err => alert(err.response.data.error))
+                .catch(err => alert(err.response?.data?.error || 'An error occurred.'))
                 .finally(() => setSubmitting(false));
         },
     });
@@ -40,7 +40,7 @@ function CategoriesPage() {
                 .then(() => {
                     setCategories(categories.filter(c => c.id !== catId));
                 })
-                .catch(err => alert(err.response.data.error));
+                .catch(err => alert(err.response?.data?.error));
         }
     };
 
@@ -49,20 +49,20 @@ function CategoriesPage() {
             <h2>Event Categories</h2>
             {error && <p className="error">{error}</p>}
             
-            <div style={{display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem'}}>
+            <div className="categories-layout">
                 <div>
                     <h3>All Categories</h3>
-                    <ul style={{listStyle: 'none', padding: 0}}>
+                    <ul className="category-list">
                         {categories.map(cat => (
-                            <li key={cat.id} style={{background: '#282c34', padding: '1rem', margin: '0.5rem 0', borderRadius: '5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <li key={cat.id} className="category-item">
                                 <div>
-                                    <strong style={{cursor: 'pointer', color: '#61dafb'}} onClick={() => navigate(`/?category_id=${cat.id}`)}>
+                                    <strong className="category-name" onClick={() => navigate(`/?category_id=${cat.id}`)}>
                                         {cat.name}
                                     </strong>
-                                    <p style={{color: '#aaa', margin: '0.5rem 0 0 0'}}>{cat.description}</p>
+                                    <p className="category-desc">{cat.description}</p>
                                 </div>
                                 {user && user.id === cat.user_id && (
-                                    <button onClick={() => handleDelete(cat.id)} style={{background: '#ff6b6b'}}>Delete</button>
+                                    <button onClick={() => handleDelete(cat.id)} className="btn-delete">Delete</button>
                                 )}
                             </li>
                         ))}

@@ -1,6 +1,6 @@
 import time
 import click
-import requests  #type: ignore
+import requests # type: ignore
 from datetime import datetime, date, timedelta
 from app import create_app, db
 from app.models import User, Event, Category, EventCategory
@@ -48,10 +48,10 @@ def seed_db():
     cat_company = Category(name="Company Milestones", description="Significant moments for major tech companies.", user_id=archivist.id)
     db.session.add_all([cat_pl, cat_os, cat_web, cat_company])
     db.session.commit()
-    event1 = Event(title="First iPhone Announced", description="Steve Jobs unveiled the first iPhone.", year=2007, month=1, day=9, user_id=archivist.id, image_url="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1120&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dg", source_link="https://en.wikipedia.org/wiki/IPhone_(1st_generation)")
-    event2 = Event(title="Windows 95 Released", description="Microsoft's game-changing operating system.", year=1995, month=8, day=24, user_id=archivist.id, image_url="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1120&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dg", source_link="https://en.wikipedia.org/wiki/Windows_95")
-    event3 = Event(title="First '.com' Domain Registered", description="Symbolics.com becomes the first-ever registered .com domain name.", year=1985, month=3, day=15, user_id=archivist.id, image_url="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1120&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dg", source_link="https://en.wikipedia.org/wiki/Symbolics")
-    event4 = Event(title="Google Founded", description="Larry Page and Sergey Brin incorporate Google in a garage.", year=1998, month=9, day=4, user_id=archivist.id, image_url="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1120&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dg", source_link="https://en.wikipedia.org/wiki/History_of_Google")
+    event1 = Event(title="First iPhone Announced", description="Steve Jobs unveiled the first iPhone, a device that combined a widescreen iPod with touch controls, a mobile phone, and an internet communicator.", year=2007, month=1, day=9, user_id=archivist.id, image_url="https://i.imgur.com/39g4g4G.png", source_link="https://en.wikipedia.org/wiki/IPhone_(1st_generation)")
+    event2 = Event(title="Windows 95 Released", description="Microsoft's game-changing operating system introduced the Start Menu and taskbar, defining the PC user experience for years to come.", year=1995, month=8, day=24, user_id=archivist.id, image_url="https://i.imgur.com/g237s54.png", source_link="https://en.wikipedia.org/wiki/Windows_95")
+    event3 = Event(title="First '.com' Domain Registered", description="The company Symbolics, Inc. registers Symbolics.com, the first-ever commercial internet domain, marking the start of the web as we know it.", year=1985, month=3, day=15, user_id=archivist.id, image_url="https://i.imgur.com/kH8cQ2n.jpeg", source_link="https://en.wikipedia.org/wiki/Symbolics")
+    event4 = Event(title="Google Founded", description="Larry Page and Sergey Brin incorporated Google in a garage in Menlo Park, California, with a mission to organize the world's information.", year=1998, month=9, day=4, user_id=archivist.id, image_url="https://i.imgur.com/N2yO9hI.png", source_link="https://en.wikipedia.org/wiki/History_of_Google")
     db.session.add_all([event1, event2, event3, event4])
     db.session.commit()
     assoc1 = EventCategory(event_id=event1.id, category_id=cat_pl.id, relationship_description="Revolutionized the mobile industry")
@@ -60,7 +60,7 @@ def seed_db():
     assoc4 = EventCategory(event_id=event4.id, category_id=cat_company.id, relationship_description="Became the dominant force in web search")
     db.session.add_all([assoc1, assoc2, assoc3, assoc4])
     db.session.commit()
-    print("Database seeded!")
+    print("Database seeded with high-quality sample data!")
 
 @app.cli.command("populate_db_year")
 @click.argument("year", type=int)

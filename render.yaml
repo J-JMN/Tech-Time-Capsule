@@ -15,9 +15,10 @@ services:
       - key: PYTHON_VERSION
         value: "3.11"
       - key: FLASK_APP
-        value: "wsgi.py" 
+        value: "wsgi.py"
       - key: SECRET_KEY
         generateValue: true
+
 
   - type: static site
     name: tech-time-capsule-client

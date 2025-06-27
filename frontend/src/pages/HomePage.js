@@ -31,7 +31,7 @@ function HomePage() {
         const params = new URLSearchParams();
         let url = '/api/events';
 
-        if (isInitialLoad && !filters.category_id) {
+        if (isInitialLoad) {
             url = '/api/events/featured';
         } else {
             if (filters.category_id) {
@@ -59,9 +59,7 @@ function HomePage() {
         try {
             const response = await apiClient.get(`${url}?${params.toString()}`);
             setEvents(response.data);
-            if (response.data.length === 0 && !(isInitialLoad && !filters.category_id)) {
-                 setError('No events found for this selection.');
-            }
+            if (response.data.length === 0) setError('No events found for this selection.');
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while fetching events.');
         } finally {
@@ -94,7 +92,7 @@ function HomePage() {
         setFilters(newFilters);
         if (location.search) navigate('/');
     };
-    
+
     const handleEventDelete = (deletedEventId) => {
         setEvents(prevEvents => prevEvents.filter(event => event.id !== deletedEventId));
     };
@@ -108,8 +106,8 @@ function HomePage() {
                 <div className="filter-row">
                     <div>
                         <strong>View Mode:</strong>
-                        <button onClick={() => { setViewMode('daily'); if(isInitialLoad) setIsInitialLoad(false); }} disabled={viewMode === 'daily'}>Daily</button>
-                        <button onClick={() => { setViewMode('monthly'); if(isInitialLoad) setIsInitialLoad(false); }} disabled={viewMode === 'monthly'}>Monthly</button>
+                        <button onClick={() => setViewMode('daily')} disabled={viewMode === 'daily'}>Daily</button>
+                        <button onClick={() => setViewMode('monthly')} disabled={viewMode === 'monthly'}>Monthly</button>
                     </div>
                     <div>
                         <strong>Sort By:</strong>
@@ -119,6 +117,7 @@ function HomePage() {
                         </select>
                     </div>
                 </div>
+
                 <div className="filter-group">
                     {viewMode === 'daily' ? (
                         <input type="date" value={filters.date} onChange={(e) => handleFilterChange({ date: e.target.value })} />

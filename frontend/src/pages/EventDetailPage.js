@@ -22,7 +22,7 @@ function EventDetailPage() {
 
     return (
         <div>
-            {event.image_url && <img src={event.image_url} alt={event.title} style={{width: '100%', height: '300px', objectFit: 'cover', borderRadius: '8px'}} />}
+            {event.image_url && <img src={event.image_url} alt={event.title} className="event-card-image" />}
             <h1>{event.title} ({event.year})</h1>
             <p style={{color: '#aaa'}}>
                 Date: {event.month}/{event.day}/{event.year} | Submitted by: {event.user.username}
@@ -32,13 +32,13 @@ function EventDetailPage() {
 
             <h3 style={{marginTop: '2rem', borderTop: '1px solid #444', paddingTop: '1rem'}}>Related Categories:</h3>
             {event.event_categories.length > 0 ? (
-                <ul style={{listStyle: 'none', padding: 0}}>
+                <ul className="category-list">
                     {event.event_categories.map(ec => (
-                        <li key={ec.id} style={{background: '#282c34', padding: '1rem', margin: '0.5rem 0', borderRadius: '5px'}}>
-                            <Link to={`/?category_id=${ec.category.id}`} style={{color: '#61dafb', fontWeight: 'bold', textDecoration: 'none'}}>
+                        <li key={ec.id} className="category-item">
+                            <Link to={`/?category_id=${ec.category.id}`} className="category-name">
                                 {ec.category.name}
                             </Link>
-                            <p style={{margin: '0.5rem 0 0 0', fontStyle: 'italic'}}>"{ec.relationship_description}"</p>
+                            <p className="category-desc" style={{fontStyle: 'italic'}}>"{ec.relationship_description}"</p>
                         </li>
                     ))}
                 </ul>

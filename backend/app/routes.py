@@ -86,18 +86,19 @@ def handle_events():
         category_id = args.get('category_id', type=int)
         if category_id:
             query = query.join(Event.event_categories).filter(EventCategory.category_id == category_id)
+        
+        years_str = args.get('years')
+        if years_str:
+            year_list = [int(y.strip()) for y in years_str.split(',') if y.strip().isdigit()]
+            if year_list: query = query.filter(Event.year.in_(year_list))
         else:
-            years_str = args.get('years')
-            if years_str:
-                year_list = [int(y.strip()) for y in years_str.split(',') if y.strip().isdigit()]
-                if year_list: query = query.filter(Event.year.in_(year_list))
-            else:
-                year = args.get('year', type=int)
-                if year: query = query.filter(Event.year == year)
-            month = args.get('month', type=int)
-            day = args.get('day', type=int)
-            if month: query = query.filter(Event.month == month)
-            if day: query = query.filter(Event.day == day)
+            year = args.get('year', type=int)
+            if year: query = query.filter(Event.year == year)
+        
+        month = args.get('month', type=int)
+        day = args.get('day', type=int)
+        if month: query = query.filter(Event.month == month)
+        if day: query = query.filter(Event.day == day)
 
         sort_by = args.get('sort')
         if sort_by == 'newest':

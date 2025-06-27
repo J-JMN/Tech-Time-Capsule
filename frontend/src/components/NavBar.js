@@ -17,7 +17,7 @@ function NavBar() {
     return (
         <header className="navbar">
             <div className="navbar-brand">
-                <NavLink to="/" className="nav-link">Tech Time Capsule</NavLink>
+                <NavLink to="/" className="nav-link">📅 Tech Time Capsule</NavLink>
             </div>
             <nav className="navbar-links">
                 <NavLink to="/categories" className="nav-link">Categories</NavLink>
