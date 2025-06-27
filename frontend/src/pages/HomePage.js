@@ -113,7 +113,6 @@ function HomePage() {
                         <strong>Sort By:</strong>
                         <select value={filters.sort} onChange={(e) => handleFilterChange({ sort: e.target.value })}>
                             <option value="historical">Historical Date</option>
-                            <option value="newest">Recently Added</option>
                         </select>
                     </div>
                 </div>

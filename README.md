@@ -94,5 +94,6 @@ Your application should now be running locally!
 
 This project was crafted with ❤️ by **Joseph Mburu**.
 
+* **Project slides:** [PRESENTATION](https://docs.google.com/presentation/d/1RiRNe7_8VJLqmE7789vHomLHtFs0m8fUX04-GY4GK3s/edit?slide=id.p1#slide=id.p1)
 * **GitHub:** [@J-JMN](https://github.com/J-JMN)
 * **Email:** [j.mburu.pro@gmail.com](mailto:j.mburu.pro@gmail.com)
