@@ -16,11 +16,16 @@ function LoginPage() {
         
         apiClient.post(endpoint, values)
             .then(res => {
+                // On successful signup or login, set the user and navigate to home
                 setUser(res.data);
                 navigate('/');
             })
             .catch(err => {
-                setError(err.response?.data?.error || "An unexpected error occurred.");
+                // Log the detailed error from the backend to the browser console for debugging
+                console.error("Authentication Error:", err.response);
+                
+                // Set the user-facing error message
+                setError(err.response?.data?.error || "An unexpected error occurred. Please try again.");
             });
     };
 

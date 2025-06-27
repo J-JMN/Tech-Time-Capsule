@@ -8,6 +8,7 @@ from app.models import User, Event, Category, EventCategory
 app = create_app()
 
 def _fetch_and_save_day(month, day, archivist, keywords):
+    """Helper function to fetch and save events for a single day."""
     try:
         print(f"Fetching events for {month}/{day}...")
         API_ENDPOINT = f"https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/{month}/{day}"
@@ -42,18 +43,22 @@ def seed_db():
     archivist.password_hash = 'a_very_strong_password'
     db.session.add(archivist)
     db.session.commit()
+
     cat_pl = Category(name="Product Launch", description="Debut of new technology products.", user_id=archivist.id)
     cat_os = Category(name="Operating Systems", description="Software that manages computer hardware and software resources.", user_id=archivist.id)
     cat_web = Category(name="World Wide Web", description="Events related to the development of the internet and web technologies.", user_id=archivist.id)
     cat_company = Category(name="Company Milestones", description="Significant moments for major tech companies.", user_id=archivist.id)
     db.session.add_all([cat_pl, cat_os, cat_web, cat_company])
     db.session.commit()
-    event1 = Event(title="First iPhone Announced", description="Steve Jobs unveiled the first iPhone, a device that combined a widescreen iPod with touch controls, a mobile phone, and an internet communicator.", year=2007, month=1, day=9, user_id=archivist.id, image_url="https://i.imgur.com/39g4g4G.png", source_link="https://en.wikipedia.org/wiki/IPhone_(1st_generation)")
-    event2 = Event(title="Windows 95 Released", description="Microsoft's game-changing operating system introduced the Start Menu and taskbar, defining the PC user experience for years to come.", year=1995, month=8, day=24, user_id=archivist.id, image_url="https://i.imgur.com/g237s54.png", source_link="https://en.wikipedia.org/wiki/Windows_95")
-    event3 = Event(title="First '.com' Domain Registered", description="The company Symbolics, Inc. registers Symbolics.com, the first-ever commercial internet domain, marking the start of the web as we know it.", year=1985, month=3, day=15, user_id=archivist.id, image_url="https://i.imgur.com/kH8cQ2n.jpeg", source_link="https://en.wikipedia.org/wiki/Symbolics")
-    event4 = Event(title="Google Founded", description="Larry Page and Sergey Brin incorporated Google in a garage in Menlo Park, California, with a mission to organize the world's information.", year=1998, month=9, day=4, user_id=archivist.id, image_url="https://i.imgur.com/N2yO9hI.png", source_link="https://en.wikipedia.org/wiki/History_of_Google")
+
+    event1 = Event(title="First iPhone Announced", description="Steve Jobs unveiled the first iPhone, a device that combined a widescreen iPod with touch controls, a mobile phone, and an internet communicator.", year=2007, month=1, day=9, user_id=archivist.id, image_url="https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?q=80&w=2070&auto=format&fit=crop", source_link="https://en.wikipedia.org/wiki/IPhone_(1st_generation)")
+    event2 = Event(title="Windows 95 Released", description="Microsoft's game-changing operating system introduced the Start Menu and taskbar, defining the PC user experience for years to come.", year=1995, month=8, day=24, user_id=archivist.id, image_url="https://images.unsplash.com/photo-1588821942917-3d9442a8b9e6?q=80&w=1932&auto=format&fit=crop", source_link="https://en.wikipedia.org/wiki/Windows_95")
+    event3 = Event(title="First '.com' Domain Registered", description="The company Symbolics, Inc. registers Symbolics.com, the first-ever commercial internet domain, marking the start of the web as we know it.", year=1985, month=3, day=15, user_id=archivist.id, image_url="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop", source_link="https://en.wikipedia.org/wiki/Symbolics")
+    event4 = Event(title="Google Founded", description="Larry Page and Sergey Brin incorporated Google in a garage in Menlo Park, California, with a mission to organize the world's information.", year=1998, month=9, day=4, user_id=archivist.id, image_url="https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=2070&auto=format&fit=crop", source_link="https://en.wikipedia.org/wiki/History_of_Google")
+    
     db.session.add_all([event1, event2, event3, event4])
     db.session.commit()
+
     assoc1 = EventCategory(event_id=event1.id, category_id=cat_pl.id, relationship_description="Revolutionized the mobile industry")
     assoc2 = EventCategory(event_id=event2.id, category_id=cat_os.id, relationship_description="Dominated the desktop market in the 90s")
     assoc3 = EventCategory(event_id=event3.id, category_id=cat_web.id, relationship_description="Marked the beginning of the commercial internet era")
